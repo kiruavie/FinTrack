@@ -1,0 +1,46 @@
+# Test API FinTrack avec Authentification
+
+## 1. Créer un utilisateur
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "name": "Test User"
+}
+
+###
+
+## 2. Se connecter
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+###
+
+## 3. Créer un compte (nécessite un token JWT)
+POST http://localhost:3000/accounts
+Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Mon compte principal",
+  "balance": 1000
+}
+
+###
+
+## 4. Mettre à jour un compte (nécessite un token JWT)
+PATCH http://localhost:3000/accounts/ACCOUNT_ID_HERE
+Content-Type: application/json
+Authorization: Bearer YOUR_JWT_TOKEN_HERE
+
+{
+  "name": "Compte modifié",
+  "balance": 2500
+}
