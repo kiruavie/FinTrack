@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+  <head>
+    <title>FinTrack API - Documentation</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      .endpoint {
+        background: #f5f5f5;
+        padding: 15px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .method {
+        font-weight: bold;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 3px;
+        margin-right: 10px;
+      }
+      .get {
+        background: #61affe;
+      }
+      .post {
+        background: #49cc90;
+      }
+      .patch {
+        background: #fca130;
+      }
+      .delete {
+        background: #f93e3e;
+      }
+      .auth-required {
+        color: #f93e3e;
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>🚀 FinTrack API</h1>
+      <p>API de gestion financière personnelle</p>
+      <p>
+        <strong>Documentation Swagger :</strong>
+        <a href="/api" target="_blank">http://localhost:3000/api</a>
+      </p>
+    </div>
+
+    <h2>📋 Endpoints principaux</h2>
+
+    <div class="endpoint">
+      <span class="method post">POST</span>
+      <strong>/auth/register</strong> - Créer un compte utilisateur
+    </div>
+
+    <div class="endpoint">
+      <span class="method post">POST</span>
+      <strong>/auth/login</strong> - Se connecter et obtenir un token JWT
+    </div>
+
+    <div class="endpoint">
+      <span class="method get">GET</span>
+      <strong>/accounts</strong> - Liste des comptes avec balance totale
+      <div class="auth-required">🔐 Authentification requise</div>
+    </div>
+
+    <div class="endpoint">
+      <span class="method get">GET</span>
+      <strong>/accounts/balance/total</strong> - Balance générale
+      <div class="auth-required">🔐 Authentification requise</div>
+    </div>
+
+    <div class="endpoint">
+      <span class="method post">POST</span>
+      <strong>/accounts</strong> - Créer un nouveau compte
+      <div class="auth-required">🔐 Authentification requise</div>
+    </div>
+
+    <div class="endpoint">
+      <span class="method get">GET</span>
+      <strong>/transactions</strong> - Liste des transactions
+      <div class="auth-required">🔐 Authentification requise</div>
+    </div>
+
+    <div class="endpoint">
+      <span class="method post">POST</span>
+      <strong>/transactions</strong> - Créer une transaction
+      <div class="auth-required">🔐 Authentification requise</div>
+    </div>
+
+    <div class="endpoint">
+      <span class="method get">GET</span>
+      <strong>/dashboard</strong> - Tableau de bord complet
+      <div class="auth-required">🔐 Authentification requise</div>
+    </div>
+
+    <div class="endpoint">
+      <span class="method get">GET</span>
+      <strong>/dashboard/categories</strong> - Top catégories
+      <div class="auth-required">🔐 Authentification requise</div>
+    </div>
+
+    <h2>🔑 Authentification</h2>
+    <p>L'API utilise l'authentification JWT Bearer Token :</p>
+    <ol>
+      <li>Créez un compte avec <code>POST /auth/register</code></li>
+      <li>Connectez-vous avec <code>POST /auth/login</code></li>
+      <li>
+        Utilisez le token dans l'en-tête :
+        <code>Authorization: Bearer &lt;token&gt;</code>
+      </li>
+    </ol>
+
+    <h2>📚 Documentation complète</h2>
+    <p>
+      Accédez à la documentation Swagger interactive :
+      <a href="/api" target="_blank">/api</a>
+    </p>
+  </body>
+</html>

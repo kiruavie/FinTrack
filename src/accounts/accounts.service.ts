@@ -19,9 +19,22 @@ export class AccountsService {
   }
 
   async getAccounts(userId: string) {
-    const accounts = await this.prisma.account.findMany({ where: { userId } });
+    const accounts = await this.prisma.account.findMany({
+      where: { userId },
+      orderBy: { name: 'asc' },
+    });
 
-    return { accounts_list: accounts };
+    // Calculer la balance générale
+    const totalBalance = accounts.reduce(
+      (sum, account) => sum + account.balance,
+      0,
+    );
+
+    return {
+      accounts_list: accounts,
+      total_balance: totalBalance,
+      accounts_count: accounts.length,
+    };
   }
 
   async getAccountById(id: string, userId: string) {
@@ -74,5 +87,127 @@ export class AccountsService {
     });
 
     return { message: 'account deleted successfully', account_deleted: true };
+  }
+
+  /**
+   * Obtient la balance générale de tous les comptes d'un utilisateur
+   */
+  async getTotalBalance(userId: string) {
+    const result = await this.prisma.account.aggregate({
+      where: { userId },
+      _sum: {
+        balance: true,
+      },
+      _count: {
+        id: true,
+      },
+    });
+
+    return {
+      total_balance: result._sum.balance || 0,
+      accounts_count: result._count.id,
+    };
+  }
+
+  /**
+   * Obtient un résumé financier complet de l'utilisateur
+   */
+  async getFinancialSummary(userId: string) {
+    // Récupérer tous les comptes avec leurs balances
+    const accounts = await this.prisma.account.findMany({
+      where: { userId },
+      include: {
+        _count: {
+          select: { transactions: true },
+        },
+      },
+      orderBy: { balance: 'desc' },
+    });
+
+    // Calculer les statistiques
+    const totalBalance = accounts.reduce(
+      (sum, account) => sum + account.balance,
+      0,
+    );
+    const positiveAccounts = accounts.filter((account) => account.balance > 0);
+    const negativeAccounts = accounts.filter((account) => account.balance < 0);
+
+    // Récupérer les dernières transactions
+    const recentTransactions = await this.prisma.transaction.findMany({
+      where: { userId },
+      include: {
+        account: {
+          select: { name: true },
+        },
+      },
+      orderBy: { date: 'desc' },
+      take: 5,
+    });
+
+    // Calculer les revenus et dépenses du mois
+    const startOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const monthlyStats = await this.prisma.transaction.groupBy({
+      by: ['type'],
+      where: {
+        userId,
+        date: {
+          gte: startOfMonth,
+        },
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    const monthlyIncome =
+      monthlyStats.find((stat) => stat.type === 'INCOME')?._sum.amount || 0;
+    const monthlyExpenses =
+      monthlyStats.find((stat) => stat.type === 'EXPENSE')?._sum.amount || 0;
+
+    return {
+      // Balance générale
+      total_balance: totalBalance,
+
+      // Statistiques des comptes
+      accounts_summary: {
+        total_accounts: accounts.length,
+        positive_accounts: positiveAccounts.length,
+        negative_accounts: negativeAccounts.length,
+        average_balance:
+          accounts.length > 0 ? totalBalance / accounts.length : 0,
+      },
+
+      // Comptes individuels
+      accounts: accounts.map((account) => ({
+        id: account.id,
+        name: account.name,
+        balance: account.balance,
+        transactions_count: account._count.transactions,
+        percentage_of_total:
+          totalBalance !== 0 ? (account.balance / totalBalance) * 100 : 0,
+      })),
+
+      // Statistiques mensuelles
+      monthly_stats: {
+        income: monthlyIncome,
+        expenses: monthlyExpenses,
+        net: monthlyIncome - monthlyExpenses,
+      },
+
+      // Dernières transactions
+      recent_transactions: recentTransactions.map((tx) => ({
+        id: tx.id,
+        type: tx.type,
+        amount: tx.amount,
+        category: tx.category,
+        description: tx.description,
+        date: tx.date,
+        account_name: tx.account.name,
+      })),
+    };
   }
 }

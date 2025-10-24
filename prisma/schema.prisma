@@ -37,9 +37,9 @@ model Transaction {
   id          String          @id @default(cuid())
   type        TransactionType
   amount      Float
-  category    String
-  description String
-  date        DateTime
+  category    String?
+  description String?
+  date        DateTime        @default(now())
   userId      String
   accountId   String
   user        User            @relation(fields: [userId], references: [id])
